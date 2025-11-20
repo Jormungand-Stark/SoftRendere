@@ -19,13 +19,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3D1CE4862ECF28A900A23B57 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		9C87F4B62ECDB7E300668071 /* softrender */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = softrender; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9C87F4B82ECDB7E300668071 /* softrender */ = {
+		3D1CE4882ECF290400A23B57 /* build */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = softrender;
+			path = build;
+			sourceTree = "<group>";
+		};
+		3D1CE4892ECF292400A23B57 /* include */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = include;
+			sourceTree = "<group>";
+		};
+		3D1CE48A2ECF292A00A23B57 /* assets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = assets;
+			sourceTree = "<group>";
+		};
+		9C87F4B82ECDB7E300668071 /* src */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,7 +60,11 @@
 		9C87F4AD2ECDB7E300668071 = {
 			isa = PBXGroup;
 			children = (
-				9C87F4B82ECDB7E300668071 /* softrender */,
+				3D1CE48A2ECF292A00A23B57 /* assets */,
+				3D1CE4892ECF292400A23B57 /* include */,
+				3D1CE4882ECF290400A23B57 /* build */,
+				3D1CE4862ECF28A900A23B57 /* CMakeLists.txt */,
+				9C87F4B82ECDB7E300668071 /* src */,
 				9C87F4B72ECDB7E300668071 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,7 +93,10 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9C87F4B82ECDB7E300668071 /* softrender */,
+				3D1CE4882ECF290400A23B57 /* build */,
+				3D1CE4892ECF292400A23B57 /* include */,
+				3D1CE48A2ECF292A00A23B57 /* assets */,
+				9C87F4B82ECDB7E300668071 /* src */,
 			);
 			name = softrender;
 			packageProductDependencies = (
