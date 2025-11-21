@@ -10,13 +10,21 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 
+// 数据输入层，存储和管理原始图像数据，
+// 为渲染管线提供纹理采样服务，工作在YUV色彩空间，需要转换才能显示。
 class YUVTexture {
 public:    
     // 从文件加载数据
-    YUVTexture(const std::string& file_path, int w, int h);
+    YUVTexture(const std::string& filename, int w, int h);
     
-    // 根据纹理坐标获取YUV值
+    // 根据纹理坐标获取YUV值，此时还不能显示
+    /**
+     @param u  纹理坐标：相对位置（浮点数，0到1）
+     @param v 同 u
+     @param 像素索引：访问具体像素的位置（整数，0到width-1）
+     */
     void sampleYUV(float u, float v, unsigned char& y, unsigned char& u_val, unsigned char& v_val);
 
     int getWidth() const { return width; }
