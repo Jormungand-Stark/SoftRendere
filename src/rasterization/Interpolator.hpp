@@ -10,4 +10,6 @@
 
 #include <stdio.h>
 
+// 插值器
+
 #endif /* Interpolator_hpp */
