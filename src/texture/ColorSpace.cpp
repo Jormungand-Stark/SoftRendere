@@ -26,51 +26,43 @@ Color SoftRenderer::yuvToRGB(unsigned char y, unsigned char u, unsigned char v, 
     const float U = static_cast<float>(u) - 128.0f;
     const float V = static_cast<float>(v) - 128.0f;
 
-    float R, G, B;
-
-    switch (standard)
-    {
-    case ColorSpaceStandard::BT601:
-        // ITU-R BT.601 (SDTV, 常用标准)，不同标准有不同的系数，根据基色推导而来。
-        const float CrtoR = 1.402f;     // Cr (V) to R
-        const float CbtoG = -0.344136f; // Cb (U) to G
-        const float CrtoG = -0.714136f; // Cr (V) to G
-        const float CbtoB = 1.772f;     // Cb (U) to B
-
-        R = Y + CrtoR * V;
-        G = Y - CbtoG * U - CrtoG * V;
-        B = Y + CbtoB * U;
-
-        break;
-    case ColorSpaceStandard::BT709:
-        // ITU-R BT.709 (HDTV)
-        // BT.709 的系数不同，通常用于高清视频
-        const float CrtoR = 1.5748f; // Cr (V) to R
-        const float CbtoG = 0.4681f; // Cb (U) to G
-        const float CrtoG = 1.0459f; // Cr (V) to G
-        const float CbtoB = 1.8556f; // Cb (U) to B
-
-        R = Y + CrtoR * V;
-        G = Y - CbtoG * U - CrtoG * V;
-        B = Y + CbtoB * U;
-
-        break;
-    case ColorSpaceStandard::BT2020:
-        // ITU-R BT.2020 (UHDTV)
-        // BT.2020 的系数更复杂，且通常与 10-bit 或 12-bit 数据相关。
-        // 这里的公式仅为占位，需要根据实际需求确定系数。
-        // 暂时使用 BT.709 系数作为占位，避免编译错误
-        const float CrtoR = 1.4746f; // Cr (V) to R
-        const float CbtoG = 0.1646f; // Cb (U) to G
-        const float CrtoG = 0.5713f; // Cr (V) to G
-        const float CbtoB = 1.8814f; // Cb (U) to B
-
-        R = Y + CrtoR * V;
-        G = Y - CbtoG * U - CrtoG * V;
-        B = Y + CbtoB * U;
-
-        break;
+    // 系数变量（由 switch 决定）
+    float CrtoR, CbtoG, CrtoG, CbtoB;
+    
+    switch (standard) {
+        case ColorSpaceStandard::BT601:
+            // ITU-R BT.601 (SDTV, 常用标准)，不同标准有不同的系数，根据基色推导而来。
+            CrtoR = ColorCoefficients::BT601::CrtoR;
+            CbtoG = ColorCoefficients::BT601::CbtoG;
+            CrtoG = ColorCoefficients::BT601::CrtoG;
+            CbtoB = ColorCoefficients::BT601::CbtoB;
+            
+            break;
+        case ColorSpaceStandard::BT709:
+            // ITU-R BT.709 (HDTV)
+            // BT.709 的系数不同，通常用于高清视频
+            CrtoR = ColorCoefficients::BT709::CrtoR;
+            CbtoG = ColorCoefficients::BT709::CbtoG;
+            CrtoG = ColorCoefficients::BT709::CrtoG;
+            CbtoB = ColorCoefficients::BT709::CbtoB;
+            
+            break;
+        case ColorSpaceStandard::BT2020:
+            // ITU-R BT.2020 (UHDTV)
+            // BT.2020 的系数更复杂，且通常与 10-bit 或 12-bit 数据相关。
+            // 这里的公式仅为占位，需要根据实际需求确定系数。
+            // 暂时使用 BT.709 系数作为占位，避免编译错误
+            CrtoR = ColorCoefficients::BT2020::CrtoR;
+            CbtoG = ColorCoefficients::BT2020::CbtoG;
+            CrtoG = ColorCoefficients::BT2020::CrtoG;
+            CbtoB = ColorCoefficients::BT2020::CbtoB;
+            
+            break;
     }
+    
+    const float R = Y + CrtoR * V;
+    const float G = Y + CbtoG * U + CrtoG * V;
+    const float B = Y + CbtoB * U;
 
     // 将最终计算的 RGB 浮点值限制在 [0, 255] 范围内
     return Color(
