@@ -16,22 +16,22 @@ namespace SoftRenderer {
 void Rasterizer::drawTexturedTriangle(FrameBuffer &fb, const Vertex &v0, const Vertex &v1, const Vertex &v2, const YUVTexture &texture) {
     // 1. 计算三角形的包围盒
     // 确定 x 轴的最小和最大边界，并钳制在 FrameBuffer 范围内 [0, width-1]。
-    int minX = static_cast<int>(std::floor(std::min({v0.x, v1.x, v2.x})));
-    int maxX = static_cast<int>(std::ceil(std::max({v0.x, v1.x, v2.x})));
+    int min_x = static_cast<int>(std::floor(std::min({v0.x, v1.x, v2.x})));
+    int max_x = static_cast<int>(std::ceil(std::max({v0.x, v1.x, v2.x})));
     
     // 确定 y 轴的最小和最大边界，并钳制在 FrameBuffer 范围内 [0, height-1]。
-    int minY = static_cast<int>(std::floor(std::min({v0.y, v1.y, v2.y})));
-    int maxY = static_cast<int>(std::ceil(std::max({v0.y, v1.y, v2.y})));
+    int min_y = static_cast<int>(std::floor(std::min({v0.y, v1.y, v2.y})));
+    int max_y = static_cast<int>(std::ceil(std::max({v0.y, v1.y, v2.y})));
     
     // 确保包围盒不会超出 FrameBuffer 的边界
-    minX = std::max(0, minX);
-    maxX = std::min(fb.getWidth() - 1, maxX);
-    minY = std::max(0, minY);
-    maxY = std::min(fb.getHeight() - 1, maxY);
+    min_x = std::max(0, min_x);
+    max_x = std::min(fb.getWidth() - 1, max_x);
+    min_y = std::max(0, min_y);
+    max_y = std::min(fb.getHeight() - 1, max_y);
     
     // 2. 遍历三角形包围盒内的每个像素 (x,y)，将像素索引转换为几何采样点（px，py），依赖于 v0、v1、v2 坐标。
-    for (int x = minX; x <= maxX; ++x) {
-        for (int y = minY; y <= maxY; ++y) {
+    for (int x = min_x; x <= max_x; ++x) {
+        for (int y = min_y; y <= max_y; ++y) {
             // 像素是1x1的方格区域，不是数学上的点。
             // 如果用 (x，y)，它同时是四个像素的角点，系统很难确定这个像素是否应该被覆盖。
             // 因此，用像素中心 (x+0.5, y+0.5) 作为采样点。
@@ -64,30 +64,61 @@ void Rasterizer::drawTexturedTriangle(FrameBuffer &fb, const Vertex &v0, const V
     }
 }
 
+void Rasterizer::drawSolidTriangle(FrameBuffer& fb,
+                                   const Vertex& v0,
+                                   const Vertex& v1,
+                                   const Vertex& v2,
+                                   const Color& color) {
+    int min_x = static_cast<int>(std::floor(std::min({v0.x, v1.x, v2.x})));
+    int max_x = static_cast<int>(std::ceil(std::max({v0.x, v1.x, v2.x})));
+    int min_y = static_cast<int>(std::floor(std::min({v0.y, v1.y, v2.y})));
+    int max_y = static_cast<int>(std::ceil(std::max({v0.y, v1.y, v2.y})));
+    
+    // 钳制
+    min_x = std::max(0, min_x);
+    max_x = std::min(max_x, fb.getWidth() - 1);
+    min_y = std::max(0, min_y);
+    max_y = std::min(max_y, fb.getHeight() - 1);
+    
+    // 像素坐标 -> 纹理坐标
+    for (int x = min_x; x <= max_x; ++x) {
+        for (int y = min_y; y <= max_y; ++y) {
+            // 取像素中心作为像素块唯一代表
+            float px = static_cast<float>(x) + 0.5f;
+            float py = static_cast<float>(y) + 0.5f;
+            
+            float w0, w1, w2;
+            auto area = computeBarycentric(px, py, v0, v1, v2, w0, w1, w2);
+            if (area != 0 && w0 >= -1e-5f && w1 >= -1e-5f && w2 >= -1e-5f) { // 使用微小容差
+                fb.setPixel(x, y, color);
+            }
+        }
+    }
+}
+
 /**
  * @brief
  * 1. 该函数计算以 P0 为起点，分别指向 P1 和 P2 的两个向量 P0P1 和 P0P2
- * 所围成的平行四边形的有向面积。该值等于对应三角形 (P0, P1, P2) / (v0, v1, v2) 面积的两倍。
+ *   所围成的平行四边形的有向面积。该值等于对应三角形 (P0, P1, P2) or  (v0, v1, v2) 面积的两倍。
  * 2. 有向面积的正负号可用于判断点的内外关系（例如光栅化优化）：
  *      - 如果三个叉乘的结果符号相同，则点 P 在三角形内部。
  *      - 如果存在任何一个叉乘结果为负，则点 P 在三角形外部。
  *      - 如果任何一个叉乘结果为零，则点 P 在三角形的某条边上。
  *
- * @param x0 P0点的x坐标
- * @param y0 P0点的y坐标
- * @param x1 P1点的x坐标
- * @param y1 P1点的y坐标
- * @param x2 P2点的x坐标
- * @param y2 P2点的y坐标
- * @return 浮点数，表示有向面积的两倍。
+ * @param ax 向量起始点 A 的 x 坐标
+ * @param ay 向量起始点 A 的 y 坐标
+ * @param bx 向量终点 B 的 x 坐标
+ * @param by 向量终点 B 的 y 坐标
+ * @param cx 向量终点 C 的 x 坐标
+ * @param cy 向量终点 C 的 y 坐标
+ * @return 浮点数，有向面积的两倍。符号表示 C 相对于 A->B 的方向。
  */
-inline float edgeFunction(float x0, float y0, float x1, float y1, float x2, float y2) {
-    // 隐式构建向量 A (P0 -> P1): Ax = (x1 - x0), Ay = (y1 - y0)
-    // 隐式构建向量 B (P0 -> P2): Bx = (x2 - x0), By = (y2 - y0)
+inline float edgeFunction(float ax, float ay, float bx, float by, float cx, float cy) {
+    // 向量 V_AB : V_AB.x = (bx - ax), V_AB.y = (by - ay), V_AB = (bx - ax, by - ay)
+    // 向量 V_AC : V_AC.x = (cx - ax), V_AC.y = (cy - ay), V_AC = (cx - ax, cy - ay)
     
-    // 二维向量叉积公式 (A_x * B_y - A_y * B_x):
-    // (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0)
-    return (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
+    // 二维向量叉积公式 V_AB.x * V_AC.y - V_AB.y * V_AC.x:
+    return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
 }
 
 float Rasterizer::computeBarycentric(float px, float py,
@@ -103,18 +134,20 @@ float Rasterizer::computeBarycentric(float px, float py,
         w0 = w1 = w2 = 0.0f;
         return 0.0f;
     }
-
-    // w2 对应于 v2 对面的子三角形面积 (P, v0, v1)
-    // w2 = Area(P, v0, v1) / Area(v0, v1, v2)
-    const float w2_2X = edgeFunction(v0.x, v0.y, v1.x, v1.y, px, py);
-
+    
+    // 计算重心坐标，所有子三角形都使用同总三角形一致的逆时针绕序: v0 → v1 → v2，确保面积符号一致。
     // w0 对应于 v0 对面的子三角形面积 (P, v1, v2)
-    // w0 = Area(P, v1, v2) / Area(v0, v1, v2)
+    // w0 = Area(P, v1, v2) / Area(v0, v1, v2)，子三角形顶点绕序: v1 → v2 → P (逆时针)。
     const float w0_2X = edgeFunction(v1.x, v1.y, v2.x, v2.y, px, py);
 
     // w1 对应于 v1 对面的子三角形面积 (P, v2, v0)
-    // w1_2X 可以通过 w0_2X + w1_2X + w2_2X = TotalArea_2X 间接求出，但直接计算更直观
+    // w1_2X 可以通过 w0_2X + w1_2X + w2_2X = TotalArea_2X 间接求出，但直接计算更直观。
+    // 绕序：v2 → v0 → P (逆时针)
     const float w1_2X = edgeFunction(v2.x, v2.y, v0.x, v0.y, px, py);
+    
+    // w2 对应于 v2 对面的子三角形面积 (P, v0, v1)
+    // w2 = Area(P, v0, v1) / Area(v0, v1, v2)，绕序：v0 → v1 → P (逆时针)。
+    const float w2_2X = edgeFunction(v0.x, v0.y, v1.x, v1.y, px, py);
 
     // 归一化：将子三角形的有向面积比上总面积，得到重心坐标
     // 这种方法避免了昂贵的除法操作，只在最后归一化一次

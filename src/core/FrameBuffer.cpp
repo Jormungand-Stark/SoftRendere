@@ -41,6 +41,7 @@ namespace SoftRenderer {
 
     void FrameBuffer::setPixel(int x, int y, const Color &color) {
         // 由于 unsigned char 天然就是 0 到 255（或 0 到 256 个值），因此无需对 color 做判断。
+        // 坐标必须在 [0, width-1] 范围内，y 坐标必须在 [0, height-1] 范围内。
         if (x >= 0 && x <= width && y >= 0 && y <= height)
         {
             int index = y * width + x;
