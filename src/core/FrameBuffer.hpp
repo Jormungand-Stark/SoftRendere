@@ -27,6 +27,9 @@
 // 帧缓冲，用来存储屏幕上的像素数据，数据输出层，存储和管理最终显示结果
 // 存储光栅化、着色后的最终像素颜色，直接对应到屏幕像素位置，工作在RGB色彩空间，可以直接显示。
 namespace SoftRenderer {
+     /**
+     * FrameBuffer 的每个点是 像素（Pixel）。它是屏幕上最小的显示单元，存储的是经过渲染后（通常是 RGB 格式）的颜色数据。
+     */
     class FrameBuffer {
     public:
         FrameBuffer(int w, int h) : width(w), height(h), pixels(w * h) {}

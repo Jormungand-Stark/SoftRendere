@@ -16,7 +16,7 @@ namespace SoftRenderer {
 class Interpolator {
 public:
     /**
-     * 使用重心坐标插值纹理坐标
+     * 使用重心坐标插值纹理坐标，纹理坐标不依赖于分辨率(Resolution)，它可以是任意浮点值。
      * 给三角形上色，颜色是从一张纹理上采样的得到，即已知一个点 P 在三角形中的位置比例，求这个点的纹理坐标 (U, V) 值。
      * 公式：UP = w0 * U0 + w1 * U1 + w2 * U2
      *      VP = w0 * V0 + w1 * V1 + w2 * V2

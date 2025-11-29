@@ -7,7 +7,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include "ColorSpace.hpp"
+#include "texture/ColorSpace.hpp"
 #include "Rasterizer.hpp"
 #include "Interpolator.hpp"
 

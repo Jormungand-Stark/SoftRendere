@@ -14,7 +14,7 @@ namespace SoftRenderer {
     /// U平面：1/4分辨率（width/2 × height/2）
     /// V平面：1/4分辨率（width/2 × height/2）
     /// 文件大小计算：width × height × 1.5 bytes
-    YUVTexture::YUVTexture(const std::string &filename, int w, int h) : width(w), height(h) {
+    YUVTexture::YUVTexture(const std::string &filename, int w, int h) : width_(w), height_(h) {
         int y_size = w * h;
         int uv_size = (w / 2) * (h / 2);
 
@@ -38,8 +38,8 @@ namespace SoftRenderer {
 
         // 1. 坐标转换，最邻近采样：四舍五入到最近的整数像素坐标
         // uv是归一化之后的值，所以可以通过uv与图像宽高相乘获得像素索引
-        int pix_x = static_cast<int>(u * width);  // 水平方向，0 到 width - 1
-        int pix_y = static_cast<int>(v * height); // 垂直方向，0 到 height - 1
+        int pix_x = static_cast<int>(u * width_);  // 水平方向，0 到 width - 1
+        int pix_y = static_cast<int>(v * height_); // 垂直方向，0 到 height - 1
 
         // 2. 边界钳位（CLAMP_TO_EDGE），纹理寻址模式/纹理环绕模式（Texture Wrap Mode）之一。
         /**
@@ -54,19 +54,19 @@ namespace SoftRenderer {
          * 因此，u * width 是基于浮点纹理空间的标准映射方式，配合后期钳位处理越界情况。
          */
         pix_x = pix_x < 0 ? 0 : pix_x;
-        pix_x = pix_x >= width ? width - 1 : pix_x;
+        pix_x = pix_x >= width_ ? width_ - 1 : pix_x;
 
         pix_y = pix_y < 0 ? 0 : pix_y;
-        pix_y = pix_y >= height ? height - 1 : pix_y;
+        pix_y = pix_y >= height_ ? height_ - 1 : pix_y;
 
         // 3. Y 分量采样
-        int y_index = pix_y * width + pix_x;
+        int y_index = pix_y * width_ + pix_x;
         y_val = y_plane[y_index];
 
         // 4. U/V 分量采样 (4:2:0 降采样)
         int uv_x = pix_x / 2;
         int uv_y = pix_y / 2;
-        int uv_width = width / 2;
+        int uv_width = width_ / 2;
         int uv_index = uv_y * uv_width + uv_x;
 
         u_val = u_plane[uv_index];
