@@ -30,8 +30,8 @@ public:
      * @param v 输出参数，插值后的 V 坐标。
      */
     static void interpolateUV(float w0, float w1, float w2,
-                       const Vertex& v0, const Vertex& v1, const Vertex& v2,
-                       float& u, float& v);
+                              const Vertex& v0, const Vertex& v1, const Vertex& v2,
+                              float& u, float& v);
 };
     
 } // namespace SoftRenderer
