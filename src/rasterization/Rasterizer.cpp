@@ -127,10 +127,10 @@ float Rasterizer::computeBarycentric(float px, float py,
     
     // TotalArea_2X = edgeFunction(v0, v1, v2)
     // 这是整个三角形的有向面积的两倍 (即 Px = v2 时的结果)
-    const float TotalArea_2X = edgeFunction(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
+    const float total_area_2X = edgeFunction(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
 
     // 如果三角形退化（面积为 0），则无法计算重心坐标
-    if (std::abs(TotalArea_2X) < 1e-6) { // 1 * 10^{-6}，即 0.000001，Robust
+    if (std::abs(total_area_2X) < 1e-6) { // 1 * 10^{-6}，即 0.000001，Robust
         w0 = w1 = w2 = 0.0f;
         return 0.0f;
     }
@@ -151,13 +151,13 @@ float Rasterizer::computeBarycentric(float px, float py,
 
     // 归一化：将子三角形的有向面积比上总面积，得到重心坐标
     // 这种方法避免了昂贵的除法操作，只在最后归一化一次
-    const float inverseTotalArea = 1.0f / TotalArea_2X;
+    const float inverseTotalArea = 1.0f / total_area_2X;
     
     w0 = w0_2X * inverseTotalArea;
     w1 = w1_2X * inverseTotalArea;
     w2 = w2_2X * inverseTotalArea;
 
-    return TotalArea_2X; // 返回 TotalArea_2X 以备后续使用，例如透视校正插值
+    return total_area_2X; // 返回 TotalArea_2X 以备后续使用，例如透视校正插值
 }
 
 } // namespace SoftRenderer
