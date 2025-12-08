@@ -7,10 +7,15 @@
 
 #ifdef _WIN32
     #include <windows.h>
-#elif defined(__APPLE__)
-    #include <mach-o/dyld.h>
-#elif defined(__linux__)
+    // 在Windows上，等价的目录切换函数是 _chdir，位于 <direct.h>
+    #define chdir _chdir
+    #include <direct.h>
+#else
+    // 对于macOS、Linux及其他类Unix系统，chdir函数都在 <unistd.h> 中
     #include <unistd.h>
+    #ifdef __APPLE__
+        #include <mach-o/dyld.h> // 仅macOS需要这个来获取可执行文件路径
+    #endif
 #endif
 
 #include <iostream>

@@ -54,27 +54,6 @@ namespace SoftRenderer {
                                const Color& color);
 
     private:
-        /**
-         * 计算给定点 P(x, y) 的重心坐标
-         * 方案：有向面积比法
-         * 顶点 Vi 的重心坐标 wi 等于点 P 与其对边顶点 V(i+1), V(i+2) 构成的子三角形的有向面积，
-         * 占整个三角形 V0, V1, V2 有向面积的比例。
-         * 公式：`w_i = Area(P, V(i+1), V(i+2)) / Area(V0, V1, V2)`
-         * 面积通过 2D 向量的叉积（即 Edge Function）计算，结果为三角形面积的两倍。
-         * 子三角形的 edgeFunction 必须使用与总三角形相同的绕序，来确保分子分母符号一致。
-         * @param px 待测试点的 X 坐标
-         * @param py 待测试点的 Y 坐标
-         * @param v0 三角形的第一个顶点
-         * @param v1 三角形的第二个顶点
-         * @param v2 三角形的第三个顶点
-         * @param w0 用于返回的第一个重心坐标（输出参数）
-         * @param w1 用于返回的第二个重心坐标（输出参数）
-         * @param w2 用于返回的第三个重心坐标（输出参数）
-         * @return 三角形的面积的两倍 (用于后续归一化)，如果面积为 0 则返回 0
-         */
-        float computeBarycentric(float px, float py,
-                                 const Vertex& v0, const Vertex& v1, const Vertex& v2,
-                                 float& w0, float& w1, float& w2);
     };
 
 } // namespace SoftRenderer
