@@ -110,10 +110,19 @@ reference_output.png
 # ----- 其他 -----
 # 依赖目录
 deps/
-third_party/*      # 忽略 third_party 下的直接内容
-# 但是，不忽略明确要使用的第三方库子目录
-!third_party/glm/  # glm 例外
-external/
+# 1. 强制忽略 third_party/glm/ 目录下的所有内容
+#    注意：这里使用第三层路径，因为它将忽略 third_party/glm/ 下的所有文件和目录
+third_party/glm/*
+
+# 2. 明确取消对 核心头文件目录 和 许可证文件的忽略
+
+# 核心头文件目录（必须包含！）
+!third_party/glm/glm/
+
+# 许可证文件（推荐保留）
+!third_party/glm/copying.txt
+
+# 如果您想追踪 third_party/glm/glm/ 目录下的所有文件，Git 会自动处理。
 
 # 包管理器文件
 conanfile.txt
