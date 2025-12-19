@@ -8,9 +8,11 @@
 #ifndef YUVTexture_hpp
 #define YUVTexture_hpp
 
+#include <cmath>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 /**
  YUVTexture (YUV数据)
